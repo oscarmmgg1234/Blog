@@ -1,25 +1,67 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+import Home from "./components/Home";
+import Portfolio from "./components/Portfolio";
+import Blog from "./components/Blog";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router basename={process.env.PUBLIC_URL}>
+      <div>
+        {/* Navbar */}
+        <nav style={styles.navbar}>
+          <ul style={styles.navList}>
+            <li style={styles.navItem}>
+              <Link to="/" style={styles.navLink}>
+                Home
+              </Link>
+            </li>
+            <li style={styles.navItem}>
+              <Link to="/portfolio" style={styles.navLink}>
+                Portfolio
+              </Link>
+            </li>
+            <li style={styles.navItem}>
+              <Link to="/blog" style={styles.navLink}>
+                Blog
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        {/* Page Content */}
+        <div style={styles.content}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/blog" element={<Blog />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
+
+// Optional inline styles
+const styles = {
+  navbar: {
+    backgroundColor: "#333",
+    padding: "1em",
+  },
+  navList: {
+    listStyleType: "none",
+    display: "flex",
+    gap: "1em",
+  },
+  navItem: {},
+  navLink: {
+    color: "white",
+    textDecoration: "none",
+  },
+  content: {
+    padding: "1em",
+  },
+};
 
 export default App;
