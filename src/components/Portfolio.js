@@ -2,8 +2,8 @@ import React from "react";
 
 const Portfolio = () => (
   <div>
-    <h1>My Portfolio</h1>
-    <p>Here are some of my projects.</p>
+    <h1>Coming soon...</h1>
+    
   </div>
 );
 
