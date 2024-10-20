@@ -4,10 +4,12 @@ import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./components/Home";
 import Portfolio from "./components/Portfolio";
 import Blog from "./components/Blog";
+//create a about page
+
 
 function App() {
   return (
-    <Router basename={process.env.PUBLIC_URL}>
+    <Router>
       <div>
         {/* Navbar */}
         <nav style={styles.navbar}>
