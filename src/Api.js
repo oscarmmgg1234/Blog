@@ -1,6 +1,8 @@
+import axios from "axios";
+
 export class API {
   constructor() {
-    this.baseUrl = "http://13.64.149.30:3000";
+    this.baseUrl = "https://oscarblogs.com";
   }
   //"http://13.64.149.30:3000";
   async getBlogEntries() {
@@ -12,13 +14,32 @@ export class API {
     return await response.json();
   }
   async pushComment(id, comment) {}
-  async pushNewEntry(formData) {
+  async pushNewEntry(formData, onUploadProgress) {
     try {
-      const response = await fetch(`${this.baseUrl}/upload`, {
-        method: "POST",
-        body: formData,
+      const response = await axios.post(`${this.baseUrl}/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable && onUploadProgress) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            onUploadProgress(percentCompleted);
+          }
+        },
       });
-      return await response.json();
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async verifyAdminKey(key) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/verify`, {
+        pass: key,
+      });
+      return response.data;
     } catch (error) {
       throw error;
     }

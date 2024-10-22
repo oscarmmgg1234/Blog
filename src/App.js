@@ -1,100 +1,86 @@
+// App.js
 import React from "react";
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   Link,
-  useNavigate,
+  Navigate,
 } from "react-router-dom";
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
 
-import Home from "./components/Home";
-import Portfolio from "./components/Portfolio";
-import Blog from "./components/Blog";
+import Home from "../src/components/Home";
+import Portfolio from "../src/components/Portfolio";
+import Blog from "../src/components/Blog";
 import BlogPage from "./components/subcomponets/BlogPage";
-import CreateBlogEntry from "./components/subcomponets/CreateBlogEntry"; // Import the CreateBlogEntry component
-import AdminModal from "./components/AdminModal"; // We'll create this component
+import CreateBlogEntry from "../src/components/subcomponets/CreateBlogEntry";
+import AdminModal from "../src/components/AdminModal";
 
 function App() {
   const [showAdminModal, setShowAdminModal] = React.useState(false);
 
+  // Function to check authentication
+  const isAuthenticated = () => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  };
+
   return (
     <Router>
-      <div>
-        {/* Navbar */}
-        <nav style={styles.navbar}>
-          <ul style={styles.navList}>
-            <li style={styles.navItem}>
-              <Link to="/" style={styles.navLink}>
+      {/* Navbar */}
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Container>
+          <Navbar.Brand as={Link} to="/">
+            Oscar's Blog
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to="/">
                 Home
-              </Link>
-            </li>
-            <li style={styles.navItem}>
-              <Link to="/blog" style={styles.navLink}>
+              </Nav.Link>
+              <Nav.Link as={Link} to="/blog">
                 Blog
-              </Link>
-            </li>
-          </ul>
-          {/* Admin Button */}
-          <button
-            style={styles.adminButton}
-            onClick={() => setShowAdminModal(true)}
-          >
-            Admin
-          </button>
-        </nav>
+              </Nav.Link>
+            </Nav>
+            <Button
+              variant="outline-light"
+              onClick={() => setShowAdminModal(true)}
+            >
+              Admin
+            </Button>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
-        {/* Admin Modal */}
-        {showAdminModal && (
-          <AdminModal onClose={() => setShowAdminModal(false)} />
-        )}
+      {/* Admin Modal */}
+      {showAdminModal && (
+        <AdminModal onClose={() => setShowAdminModal(false)} />
+      )}
 
-        {/* Page Content */}
-        <div style={styles.content}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogPage />} />
-            <Route path="/admin" element={<CreateBlogEntry />} />
-          </Routes>
-        </div>
-      </div>
+      {/* Page Content */}
+      <Container style={{ paddingTop: "20px" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<BlogPage />} />
+
+          {/* Protected Admin Route */}
+          <Route
+            path="/admin"
+            element={
+              isAuthenticated() ? (
+                <CreateBlogEntry />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+        </Routes>
+      </Container>
     </Router>
   );
 }
-
-// Optional inline styles
-const styles = {
-  navbar: {
-    backgroundColor: "#333",
-    padding: "1em",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  navList: {
-    listStyleType: "none",
-    display: "flex",
-    gap: "1em",
-    margin: 0,
-    padding: 0,
-  },
-  navItem: {},
-  navLink: {
-    color: "white",
-    textDecoration: "none",
-  },
-  adminButton: {
-    backgroundColor: "#555",
-    color: "white",
-    border: "none",
-    padding: "0.5em 1em",
-    cursor: "pointer",
-    borderRadius: "4px",
-  },
-  content: {
-    padding: "1em",
-  },
-};
 
 export default App;

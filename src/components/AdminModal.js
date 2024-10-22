@@ -1,69 +1,100 @@
+// AdminModal.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { API } from "../Api";
+
+const api = new API();
 
 const AdminModal = ({ onClose }) => {
   const [password, setPassword] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === "Omariscool1234!") {
-      onClose();
-      navigate("/admin");
-    } else {
-      alert("Incorrect password");
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await api.verifyAdminKey(password);
+
+      if (response.success) {
+        // Set authentication flag in localStorage
+        localStorage.setItem("isAuthenticated", "true");
+
+        // Verification successful
+        onClose();
+        navigate("/admin");
+      } else {
+        // Verification failed
+        setErrorMessage(response.message || "Incorrect password");
+      }
+    } catch (error) {
+      console.error("Error verifying admin key:", error);
+      setErrorMessage("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const styles = {
-    modalOverlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalContent: {
-      backgroundColor: "white",
-      padding: "2em",
-      borderRadius: "8px",
-      textAlign: "center",
-    },
-    input: {
-      width: "100%",
-      padding: "0.5em",
-      marginBottom: "1em",
-      fontSize: "1em",
-    },
-    button: {
-      padding: "0.5em 1em",
-      fontSize: "1em",
-      cursor: "pointer",
-    },
-  };
-
   return (
-    <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <h2>Enter Admin Password</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>
-            Login
-          </button>
-        </form>
-      </div>
-    </div>
+    <Modal show onHide={onClose} centered backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Admin Login</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={handleSubmit}>
+          {/* Password Input */}
+          <Form.Group controlId="adminPassword" className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter admin password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <Alert
+              variant="danger"
+              onClose={() => setErrorMessage("")}
+              dismissible
+            >
+              {errorMessage}
+            </Alert>
+          )}
+
+          {/* Submit Button */}
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={isSubmitting}
+            className="w-100"
+          >
+            {isSubmitting ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </Button>
+        </Form>
+      </Modal.Body>
+    </Modal>
   );
 };
 

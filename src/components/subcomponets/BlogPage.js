@@ -1,9 +1,9 @@
+// BlogPage.js
 import React from "react";
-import  { Highlight,themes } from "prism-react-renderer";
-
+import { Highlight, themes } from "prism-react-renderer";
+import { Container } from "react-bootstrap";
 import { API } from "../../Api";
 import { useParams } from "react-router-dom";
-
 
 const api = new API();
 
@@ -11,22 +11,18 @@ const BlogPage = () => {
   const { id } = useParams();
   const [blogEntry, setBlogEntry] = React.useState(null);
 
-  // Fetch the blog entry by ID
-  const initFetch = async () => {
-    try {
-      // Fetch the blog entry using the API
-      const entry = await api.getBlogEntry(id);
-      setBlogEntry(entry[0]);
-    } catch (error) {
-      console.error("Error fetching blog entry:", error);
-    }
-  };
-
   React.useEffect(() => {
+    const initFetch = async () => {
+      try {
+        const entry = await api.getBlogEntry(id);
+        setBlogEntry(entry[0]);
+      } catch (error) {
+        console.error("Error fetching blog entry:", error);
+      }
+    };
     initFetch();
   }, [id]);
 
-  // Render loading state
   if (!blogEntry) {
     return <div>Loading...</div>;
   }
@@ -36,21 +32,23 @@ const BlogPage = () => {
     switch (block.type) {
       case "header":
         return (
-          <h2 key={index} style={styles.header}>
+          <h2 key={index} className="mt-4">
             {block.content}
           </h2>
         );
       case "subheader":
         return (
-          <h3 key={index} style={styles.subheader}>
+          <h3 key={index} className="mt-3">
             {block.content}
           </h3>
         );
       case "paragraph":
         return (
-          <p key={index} style={styles.paragraph}>
-            {block.content}
-          </p>
+          <div
+            key={index}
+            className="mt-2"
+            dangerouslySetInnerHTML={{ __html: block.content }}
+          ></div>
         );
       case "image":
         return (
@@ -58,12 +56,12 @@ const BlogPage = () => {
             key={index}
             src={`data:image/jpeg;base64,${block.content}`}
             alt=""
-            style={styles.image}
+            className="img-fluid mt-3"
           />
         );
       case "code":
         return (
-          <div key={index} style={styles.codeBlock}>
+          <div key={index} className="mt-3">
             <Highlight
               theme={themes.nightOwl}
               code={block.content}
@@ -88,107 +86,45 @@ const BlogPage = () => {
         );
       case "iframe video":
         return (
-          <div key={index} style={styles.videoContainer}>
+          <div
+            key={index}
+            className="embed-responsive embed-responsive-16by9 mt-3"
+          >
             <iframe
               src={block.content}
               title={`Video ${index}`}
               frameBorder="0"
               allowFullScreen
-              style={styles.video}
+              className="embed-responsive-item"
             />
           </div>
         );
-      // Add other cases as needed
       default:
         return null;
     }
   };
-  // Function to format date string to "Month Day"
+
+  // Function to format date string to "Month Day, Year"
   const formatDate = (dateString) => {
     const options = { month: "long", day: "numeric", year: "numeric" };
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, options);
   };
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>{blogEntry.title}</h1>
-      <p style={styles.author}>By {blogEntry.author}</p>
-      <p style={styles.time}> {formatDate(blogEntry.entry_date)} </p>
-      <hr style={styles.divider} />
-      <div style={styles.content}>
+    <Container className="mt-4">
+      <h1>{blogEntry.title}</h1>
+      <p className="text-muted">
+        By {blogEntry.author} | {formatDate(blogEntry.entry_date)}
+      </p>
+      <hr />
+      <div>
         {blogEntry.content.map((block, index) => (
-          <div key={index}>
-            {renderBlock(block, index)}
-            <hr style={styles.divider} />
-          </div>
+          <div key={index}>{renderBlock(block, index)}</div>
         ))}
       </div>
-    </div>
+    </Container>
   );
-};
-
-// Styles
-const styles = {
-  container: {
-    maxWidth: "800px",
-    margin: "0 auto",
-    padding: "20px",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  },
-  title: {
-    fontSize: "2.5em",
-    marginBottom: "0.2em",
-  },
-  time: {
-    fontSize: "1em",
-    color: "#777",
-    marginBottom: "1em",
-  },
-  author: {
-    fontSize: "1em",
-    color: "#777",
-    marginBottom: "1em",
-  },
-  divider: {
-    margin: "20px 0",
-    border: "none",
-    borderTop: "1px solid #eee",
-  },
-  header: {
-    fontSize: "2em",
-    marginBottom: "0.5em",
-  },
-  subheader: {
-    fontSize: "1.5em",
-    marginBottom: "0.5em",
-  },
-  paragraph: {
-    fontSize: "1.1em",
-    lineHeight: "1.6",
-    marginBottom: "1em",
-  },
-  image: {
-    width: "100%",
-    height: "auto",
-    marginBottom: "1em",
-  },
-  codeBlock: {
-    marginBottom: "1em",
-  },
-  videoContainer: {
-    position: "relative",
-    paddingBottom: "56.25%", // 16:9 aspect ratio
-    height: 0,
-    overflow: "hidden",
-    marginBottom: "1em",
-  },
-  video: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-  },
 };
 
 export default BlogPage;
