@@ -13,7 +13,18 @@ export class API {
     const response = await fetch(`${this.baseUrl}/entry/${id}`);
     return await response.json();
   }
-  async pushComment(id, comment) {}
+  async pushComment(id, comment, author) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/comment`, {
+        id: id,
+        comment: comment,
+        author: author,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
   async pushNewEntry(formData, onUploadProgress) {
     try {
       const response = await axios.post(`${this.baseUrl}/upload`, formData, {
